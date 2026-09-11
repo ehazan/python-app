@@ -1,0 +1,13 @@
+.git
+.gitignore
+.venv
+.ruff_cache
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+Dockerfile
+.dockerignore
+README.md

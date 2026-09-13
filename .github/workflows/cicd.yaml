@@ -52,6 +52,11 @@ jobs:
         run: |
           echo ${{ needs.ci.outputs.commit_id }}
           yq -i '.image.tag = "${{ needs.ci.outputs.commit_id }}"' charts/python-app/values.yaml
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Updates values.yaml with commit ${{ needs.ci.outputs.commit_id }}'
           
       - name: Install Argo CD CLI
         shell: bash

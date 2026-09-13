@@ -34,13 +34,21 @@ jobs:
     runs-on: self-hosted
     steps:
       -
-        name: Install Argocd
+        name: Install Argo CD CLI
         shell: bash
+        env:
+          ARGOCD_VERSION: v3.3.3 # Pin a version compatible with your server
         run: |
-            curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-            chmod +x argocd-linux-amd64
-            mv ./argocd-linux-amd64 /usr/local/bin/argocd
-            rm argocd-linux-amd64
+          set -euo pipefail
+      
+          curl -fsSL \
+            -o "$RUNNER_TEMP/argocd" \
+            "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
+      
+          chmod 0555 "$RUNNER_TEMP/argocd"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      
+          "$RUNNER_TEMP/argocd" version --client
       - 
         name: Argo cd app sync
         shell: bash

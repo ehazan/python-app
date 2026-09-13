@@ -12,7 +12,7 @@ def info():
     return {
         "time": datetime.datetime.now(datetime.UTC).strftime("%I:%M:%S%p  on %B %d, %Y"),
         "hostname": socket.gethostname(),
-        "message": "You are doing great, little human !",
+        "message": "You are doing great, little human",
         "deployed_on": "kubernetes",
     }
 

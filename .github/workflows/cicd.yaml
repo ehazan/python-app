@@ -10,47 +10,50 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    outputs:
+      commit_id: ${{ env.COMMIT_ID }}
     steps:
-      - 
-        name: Shorten commit id
+      - name: Shorten commit id
         shell: bash
         run: |
           echo "COMMIT_ID=${GITHUB_SHA::6}" >> "$GITHUB_ENV"
-      -
-        name: Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Build and push
+      - name: Build and push
         uses: docker/build-push-action@v7
         with:
           push: true
           tags: ehazan/python-app:${{ env.COMMIT_ID }}
-
   cd:
     needs: ci
     runs-on: self-hosted
     steps:
-      -
-        name: Install Argo CD CLI
+      - name: Modify values file
+        shell: bash
+        run: |
+          echo ${{ needs.ci.outputs.commit_id }}
+          pip install yq
+          yq -Yi '.image.tag = "${{ needs.ci.outputs.commit_id }}" charts/python-app/values.yaml'
+          
+      - name: Install Argo CD CLI
         shell: bash
         env:
           ARGOCD_VERSION: v3.3.3 # Pin a version compatible with your server
         run: |
           set -euo pipefail
-      
+
           curl -fsSL \
             -o "$RUNNER_TEMP/argocd" \
             "https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64"
-      
+
           chmod 0555 "$RUNNER_TEMP/argocd"
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-      
+
           "$RUNNER_TEMP/argocd" version --client
-      - 
-        name: Argo cd app sync
+      - name: Argo cd app sync
         shell: bash
         run: |
           argocd login argocd-server.argocd \

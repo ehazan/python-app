@@ -31,11 +31,24 @@ jobs:
     needs: ci
     runs-on: self-hosted
     steps:
+      - name: Install yq
+        shell: bash
+        env:
+          YQ_VERSION: v4.53.3
+        run: |
+          curl -fsSL \
+            -o "$RUNNER_TEMP/yq" \
+            "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+      
+          chmod 0555 "$RUNNER_TEMP/yq"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      
+          "$RUNNER_TEMP/yq" --version
+          
       - name: Modify values file
         shell: bash
         run: |
           echo ${{ needs.ci.outputs.commit_id }}
-          pip install yq
           yq -Yi '.image.tag = "${{ needs.ci.outputs.commit_id }}" charts/python-app/values.yaml'
           
       - name: Install Argo CD CLI

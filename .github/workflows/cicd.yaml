@@ -49,7 +49,7 @@ jobs:
         shell: bash
         run: |
           echo ${{ needs.ci.outputs.commit_id }}
-          yq -i '.image.tag = "${{ needs.ci.outputs.commit_id }}" charts/python-app/values.yaml'
+          yq -i '.image.tag = "${{ needs.ci.outputs.commit_id }}"' charts/python-app/values.yaml
           
       - name: Install Argo CD CLI
         shell: bash
